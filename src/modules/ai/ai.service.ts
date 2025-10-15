@@ -25,7 +25,8 @@ export class AIService {
   private apiKey: string | undefined;
 
   constructor() {
-    this.apiKey = Deno.env.get("OPENAI_API_KEY") || Deno.env.get("ANTHROPIC_API_KEY");
+    this.apiKey = Deno.env.get("OPENAI_API_KEY") ||
+      Deno.env.get("ANTHROPIC_API_KEY");
 
     if (!this.apiKey) {
       logger.warn("No AI API key configured. Using mock responses.");
@@ -43,17 +44,24 @@ export class AIService {
     // In production, this would call OpenAI/Anthropic API
 
     const isBug = issue.labels.includes("bug");
-    const isFeature = issue.labels.includes("feature") || issue.labels.includes("enhancement");
+    const isFeature = issue.labels.includes("feature") ||
+      issue.labels.includes("enhancement");
     const isTest = issue.labels.includes("test");
 
     return {
-      summary: `Issue "${issue.title}" requires ${isBug ? "bug fix" : isFeature ? "feature implementation" : "general development"}`,
+      summary: `Issue "${issue.title}" requires ${
+        isBug
+          ? "bug fix"
+          : isFeature
+          ? "feature implementation"
+          : "general development"
+      }`,
       suggestedWorkflow: isBug ? "bug-fix" : isFeature ? "feature" : "generic",
       suggestions: this.generateSuggestions(issue),
       complexity: this.assessComplexity(issue.body),
       estimatedEffort: this.estimateEffort(issue.body),
       requiredFiles: this.identifyRequiredFiles(issue.body),
-      dependencies: this.identifyDependencies(issue.body)
+      dependencies: this.identifyDependencies(issue.body),
     };
   }
 
@@ -92,10 +100,10 @@ export class AIService {
         {
           path: "src/main.ts",
           line: 10,
-          body: "Consider adding error handling here"
-        }
+          body: "Consider adding error handling here",
+        },
       ],
-      summary: "Code looks good overall. Minor suggestions for improvement."
+      summary: "Code looks good overall. Minor suggestions for improvement.",
     };
   }
 
@@ -115,8 +123,10 @@ export class AIService {
 
     return {
       explanation: `The error "${error.message}" typically occurs when...`,
-      suggestedFix: `Try modifying ${error.file || "the file"} at line ${error.line || "X"}`,
-      confidence: 0.85
+      suggestedFix: `Try modifying ${error.file || "the file"} at line ${
+        error.line || "X"
+      }`,
+      confidence: 0.85,
     };
   }
 

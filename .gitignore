@@ -2,10 +2,10 @@
 .env
 .env.local
 .env.*.local
+.env.production
 
 # Deno
 .deno/
-deno.lock
 
 # Logs
 *.log
@@ -92,6 +92,27 @@ claudedocs/
 .claude/
 *.md.backup
 
+# Database files
+data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Redis dumps
+dump.rdb
+
+# Job queue data
+queue-data/
+
+# Metrics data
+metrics/
+
+# AI cache
+.ai-cache/
+ai-cache/
+
 # Secrets and sensitive data
 *.key
 *.pem
@@ -100,3 +121,4 @@ claudedocs/
 credentials.json
 secrets.yaml
 config.local.yaml
+github-app-private-key.pem

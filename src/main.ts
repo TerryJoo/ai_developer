@@ -4,9 +4,24 @@ import { GitHubWebhookHandler } from "./modules/github/webhook.handler.ts";
 import { AutomationService } from "./modules/automation/automation.service.ts";
 import { logger } from "./core/logger.ts";
 import { generateOverviewHTML } from "./core/overview.template.ts";
+import { config, validateConfig } from "./core/config.ts";
+import { enhancedAI } from "./modules/ai/ai.service.enhanced.ts";
+import { aiCache } from "./modules/ai/cache.ts";
+import { costTracker } from "./modules/ai/cost-tracker.ts";
+import { apiRouter } from "./dashboard/routes/api.ts";
+import { getWorkerPool } from "./queue/workers.ts";
+import { getQueue } from "./queue/job-queue.ts";
 
 // Load environment variables
 await load({ export: true, allowEmptyValues: true });
+
+// Validate configuration
+const validation = validateConfig();
+if (!validation.valid) {
+  logger.error("Configuration validation failed:");
+  validation.errors.forEach((error) => logger.error(`  - ${error}`));
+  Deno.exit(1);
+}
 
 const app = new Application();
 const router = new Router();
@@ -14,6 +29,15 @@ const router = new Router();
 // Initialize services
 const githubHandler = new GitHubWebhookHandler();
 const automationService = new AutomationService();
+
+// Start worker pool
+logger.info("Starting worker pool...");
+const queue = getQueue();
+const workerPool = getWorkerPool(queue);
+await workerPool.start();
+
+// Log AI service configuration
+logger.info(`AI Service: ${JSON.stringify(enhancedAI.getConfiguration())}`);
 
 // Overview page endpoint
 router.get("/", (ctx) => {
@@ -56,7 +80,7 @@ router.post("/webhook/github", async (ctx) => {
     ctx.response.status = 200;
     ctx.response.body = { message: "Webhook processed successfully" };
   } catch (error) {
-    logger.error("Webhook processing error:", error);
+    logger.error("Webhook processing error:", error instanceof Error ? error : new Error(String(error)));
     ctx.response.status = 500;
     ctx.response.body = { error: "Internal server error" };
   }
@@ -70,7 +94,7 @@ router.post("/api/automation/trigger", async (ctx) => {
 
     ctx.response.body = result;
   } catch (error) {
-    logger.error("Automation trigger error:", error);
+    logger.error("Automation trigger error:", error instanceof Error ? error : new Error(String(error)));
     ctx.response.status = 500;
     ctx.response.body = { error: "Failed to trigger automation" };
   }
@@ -79,13 +103,15 @@ router.post("/api/automation/trigger", async (ctx) => {
 // Apply routes
 app.use(router.routes());
 app.use(router.allowedMethods());
+app.use(apiRouter.routes());
+app.use(apiRouter.allowedMethods());
 
 // Global error handling
 app.use(async (ctx, next) => {
   try {
     await next();
   } catch (err) {
-    logger.error("Unhandled error:", err);
+    logger.error("Unhandled error:", err instanceof Error ? err : new Error(String(err)));
     ctx.response.status = 500;
     ctx.response.body = { error: "Internal server error" };
   }

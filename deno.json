@@ -3,6 +3,8 @@
     "dev": "deno run --watch --allow-net --allow-env --allow-read --allow-write src/main.ts",
     "start": "deno run --allow-net --allow-env --allow-read --allow-write src/main.ts",
     "test": "deno test --allow-net --allow-env --allow-read",
+    "test:auto": "./scripts/auto-test.sh",
+    "check": "deno check src/**/*.ts",
     "fmt": "deno fmt",
     "lint": "deno lint"
   },

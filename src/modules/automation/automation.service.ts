@@ -74,7 +74,7 @@ export class AutomationService {
           await this.executeGenericWorkflow(payload, analysis);
       }
     } catch (error) {
-      logger.error(`Failed to process issue #${payload.issueNumber}:`, error);
+      logger.error(`Failed to process issue #${payload.issueNumber}:`, error instanceof Error ? error : new Error(String(error)));
 
       const errorMessage = error instanceof Error ? error.message : String(error);
       await this.githubService.createIssueComment(
@@ -124,7 +124,7 @@ export class AutomationService {
           );
       }
     } catch (error) {
-      logger.error(`Failed to execute command:`, error);
+      logger.error(`Failed to execute command:`, error instanceof Error ? error : new Error(String(error)));
 
       const errorMessage = error instanceof Error ? error.message : String(error);
       await this.githubService.createIssueComment(
@@ -150,7 +150,7 @@ export class AutomationService {
         }
       };
     } catch (error) {
-      logger.error("Workflow trigger failed:", error);
+      logger.error("Workflow trigger failed:", error instanceof Error ? error : new Error(String(error)));
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         success: false,
@@ -180,7 +180,7 @@ export class AutomationService {
         payload.repository
       );
     } catch (error) {
-      logger.error(`Failed to review PR #${payload.prNumber}:`, error);
+      logger.error(`Failed to review PR #${payload.prNumber}:`, error instanceof Error ? error : new Error(String(error)));
     }
   }
 

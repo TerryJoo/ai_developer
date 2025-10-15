@@ -55,7 +55,7 @@ export class GitHubService {
 
       logger.info(`Comment added to issue #${issueNumber}`);
     } catch (error) {
-      logger.error(`Failed to create comment on issue #${issueNumber}:`, error);
+      logger.error(`Failed to create comment on issue #${issueNumber}:`, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -85,7 +85,7 @@ export class GitHubService {
       logger.info(`Pull request #${response.data.number} created`);
       return response.data.number;
     } catch (error) {
-      logger.error("Failed to create pull request:", error);
+      logger.error("Failed to create pull request:", error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -116,7 +116,7 @@ export class GitHubService {
 
       logger.info(`Branch '${branchName}' created from '${baseBranch}'`);
     } catch (error) {
-      logger.error(`Failed to create branch '${branchName}':`, error);
+      logger.error(`Failed to create branch '${branchName}':`, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -162,7 +162,7 @@ export class GitHubService {
 
       logger.info(`File '${path}' committed to branch '${branch}'`);
     } catch (error) {
-      logger.error(`Failed to commit file '${path}':`, error);
+      logger.error(`Failed to commit file '${path}':`, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -190,7 +190,7 @@ export class GitHubService {
         )
       };
     } catch (error) {
-      logger.error(`Failed to get issue #${issueNumber}:`, error);
+      logger.error(`Failed to get issue #${issueNumber}:`, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -213,7 +213,7 @@ export class GitHubService {
 
       logger.info(`Labels added to issue #${issueNumber}: ${labels.join(", ")}`);
     } catch (error) {
-      logger.error(`Failed to add labels to issue #${issueNumber}:`, error);
+      logger.error(`Failed to add labels to issue #${issueNumber}:`, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -238,7 +238,7 @@ export class GitHubService {
 
       logger.info(`Review submitted for PR #${prNumber}`);
     } catch (error) {
-      logger.error(`Failed to create review for PR #${prNumber}:`, error);
+      logger.error(`Failed to create review for PR #${prNumber}:`, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
