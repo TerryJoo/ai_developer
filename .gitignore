@@ -1,0 +1,102 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Deno
+.deno/
+deno.lock
+
+# Logs
+*.log
+logs/
+server.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+*.lcov
+.nyc_output/
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build outputs
+dist/
+build/
+out/
+*.js.map
+*.d.ts.map
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Test files
+test-results/
+playwright-report/
+*.test.log
+
+# Documentation build
+docs/_build/
+site/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# GitHub specific (if using GitHub Actions)
+.github/.DS_Store
+
+# Project specific
+claudedocs/
+.claude/
+*.md.backup
+
+# Secrets and sensitive data
+*.key
+*.pem
+*.crt
+*.p12
+credentials.json
+secrets.yaml
+config.local.yaml
