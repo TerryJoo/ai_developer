@@ -7,8 +7,17 @@ import { getRedisClient } from "../../database/redis.ts";
 import { logger } from "../../core/logger.ts";
 import { config } from "../../core/config.ts";
 import type { AICompletionResponse } from "../../core/types.ts";
+import type { RedisClient } from "../../database/redis.ts";
 
-const redisClient = await getRedisClient();
+// Lazy-loaded Redis client to avoid connection at module import time
+let redisClient: RedisClient | null = null;
+
+async function getClient(): Promise<RedisClient> {
+  if (!redisClient) {
+    redisClient = await getRedisClient();
+  }
+  return redisClient;
+}
 
 /**
  * 캐시 키 생성을 위한 해시 함수
@@ -59,8 +68,9 @@ export class AICacheManager {
     }
 
     try {
+      const client = await getClient();
       const cacheKey = await this.generateCacheKey(provider, model, messages);
-      const cached = await redisClient.get(cacheKey);
+      const cached = await client.get(cacheKey);
 
       if (cached) {
         // 캐시 히트 메트릭 증가
@@ -93,10 +103,11 @@ export class AICacheManager {
     }
 
     try {
+      const client = await getClient();
       const cacheKey = await this.generateCacheKey(provider, model, messages);
       const serialized = JSON.stringify(response);
 
-      await redisClient.set(cacheKey, serialized, this.ttl);
+      await client.set(cacheKey, serialized, this.ttl);
 
       // 저장된 바이트 수 업데이트
       await this.incrementMetric("bytesStored", serialized.length);
@@ -112,16 +123,17 @@ export class AICacheManager {
    */
   async invalidate(pattern?: string): Promise<number> {
     try {
+      const client = await getClient();
       const searchPattern = pattern
         ? `${this.keyPrefix}${pattern}*`
         : `${this.keyPrefix}*`;
 
-      const keys = await redisClient.keys(searchPattern);
+      const keys = await client.keys(searchPattern);
       if (keys.length === 0) {
         return 0;
       }
 
-      await redisClient.del(...keys);
+      await client.del(...keys);
       logger.info(`Invalidated ${keys.length} cache entries`);
 
       return keys.length;
@@ -136,8 +148,9 @@ export class AICacheManager {
    */
   async clear(): Promise<void> {
     try {
+      const client = await getClient();
       await this.invalidate();
-      await redisClient.del(this.metricsKey);
+      await client.del(this.metricsKey);
       logger.info("Cache cleared");
     } catch (error) {
       logger.error(`Cache clear error: ${error}`);
@@ -149,7 +162,8 @@ export class AICacheManager {
    */
   async getMetrics(): Promise<CacheMetrics> {
     try {
-      const metrics = await redisClient.hgetall(this.metricsKey);
+      const client = await getClient();
+      const metrics = await client.hgetall(this.metricsKey);
 
       const hits = parseInt(metrics.hits || "0", 10);
       const misses = parseInt(metrics.misses || "0", 10);
@@ -180,7 +194,8 @@ export class AICacheManager {
    */
   async resetMetrics(): Promise<void> {
     try {
-      await redisClient.del(this.metricsKey);
+      const client = await getClient();
+      await client.del(this.metricsKey);
       logger.info("Cache metrics reset");
     } catch (error) {
       logger.error(`Failed to reset cache metrics: ${error}`);
@@ -213,7 +228,8 @@ export class AICacheManager {
     value: number = 1,
   ): Promise<void> {
     try {
-      await redisClient.hincrby(this.metricsKey, field, value);
+      const client = await getClient();
+      await client.hincrby(this.metricsKey, field, value);
     } catch (error) {
       logger.error(`Failed to increment metric ${field}: ${error}`);
     }
@@ -224,7 +240,8 @@ export class AICacheManager {
    */
   async getSize(): Promise<number> {
     try {
-      const keys = await redisClient.keys(`${this.keyPrefix}*`);
+      const client = await getClient();
+      const keys = await client.keys(`${this.keyPrefix}*`);
       return keys.length;
     } catch (error) {
       logger.error(`Failed to get cache size: ${error}`);

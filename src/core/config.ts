@@ -1,7 +1,20 @@
 import { load } from "@std/dotenv/mod.ts";
 
-// 환경 변수 로드
-await load({ export: true, allowEmptyValues: true });
+// 환경 변수 로드 - 테스트 환경에서는 .env.example 검증 건너뛰기
+const envFile = Deno.env.get("ENV") === "test" ? ".env.test" : ".env";
+try {
+  await load({
+    export: true,
+    allowEmptyValues: true,
+    envPath: envFile,
+    examplePath: Deno.env.get("ENV") === "test" ? undefined : ".env.example",
+  });
+} catch (error) {
+  // 테스트 환경에서는 .env 파일이 없어도 계속 진행
+  if (Deno.env.get("ENV") !== "test") {
+    console.warn("Failed to load .env file:", error);
+  }
+}
 
 /**
  * 환경 변수를 가져오며, 없으면 기본값 반환
