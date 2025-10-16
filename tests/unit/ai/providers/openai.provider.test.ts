@@ -2,7 +2,7 @@
  * OpenAI Provider Unit Tests
  */
 
-import { assertEquals, assertExists } from "@std/assert";
+import { assertEquals, assertExists } from "@std/assert/mod.ts";
 import { createOpenAIProvider } from "../../../../src/modules/ai/providers/openai.provider.ts";
 
 Deno.test("OpenAI Provider - initialization", () => {

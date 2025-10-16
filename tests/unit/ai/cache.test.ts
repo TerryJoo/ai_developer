@@ -2,7 +2,7 @@
  * AI Cache Tests
  */
 
-import { assertEquals } from "@std/assert";
+import { assertEquals } from "@std/assert/mod.ts";
 import { AICacheManager } from "../../../src/modules/ai/cache.ts";
 
 Deno.test("AI Cache - metrics tracking", async () => {

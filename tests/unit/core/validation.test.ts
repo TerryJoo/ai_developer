@@ -21,8 +21,8 @@ Deno.test("Validation - stringLength rule", () => {
   const rule = stringLength(3, 10);
 
   assertEquals(rule("test"), true);
-  assertEquals(rule("ab"), "string");
-  assertEquals(rule("12345678901"), "string");
+  assertEquals(typeof rule("ab"), "string");
+  assertEquals(typeof rule("12345678901"), "string");
 });
 
 Deno.test("Validation - email rule", () => {
@@ -50,7 +50,7 @@ Deno.test("Validation - oneOf rule", () => {
 });
 
 Deno.test("Validation - Validator class", () => {
-  interface TestData {
+  interface TestData extends Record<string, unknown> {
     name: string;
     age: number;
     email: string;
@@ -74,7 +74,7 @@ Deno.test("Validation - Validator class", () => {
 });
 
 Deno.test("Validation - Validator with invalid data", () => {
-  interface TestData {
+  interface TestData extends Record<string, unknown> {
     name: string;
     age: number;
   }
